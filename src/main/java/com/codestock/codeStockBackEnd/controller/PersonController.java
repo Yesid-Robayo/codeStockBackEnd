@@ -4,10 +4,12 @@ import com.codestock.codeStockBackEnd.model.dto.PersonDTO;
 import com.codestock.codeStockBackEnd.model.entity.Person;
 import com.codestock.codeStockBackEnd.service.IPerson;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -37,26 +39,6 @@ public class PersonController {
         this.personService = personService;
     }
 
-    /**
-     * Create a Person entity.
-     * It uses Spring's @PostMapping annotation to map this method to the POST "/person" request.
-     * It returns a PersonDTO object after saving the person.
-     *
-     * @param personDTO The PersonDTO object to be created.
-     * @return The created PersonDTO object.
-     */
-    @PostMapping("/person")
-    public PersonDTO createPerson(@RequestBody PersonDTO personDTO) {
-        Person personCreate = personService.save(personDTO);
-        return PersonDTO.builder().Id(personCreate.getIdPerson())
-                .name(personCreate.getName())
-                .lastName(personCreate.getLastName())
-                .gender(personCreate.getGender())
-                .email(personCreate.getEmail())
-                .phone(personCreate.getPhone())
-                .dateOfBirth(personCreate.getDateOfBirth()).build();
-
-    }
 
     /**
      * Update a Person entity.
@@ -67,66 +49,54 @@ public class PersonController {
      * @return The updated PersonDTO object.
      */
     @PutMapping("/person")
-    public PersonDTO updatePerson(@RequestBody PersonDTO dataDTO) {
-        Person person = personService.findById(dataDTO.getId());
-        PersonDTO personDTO = PersonDTO.builder().Id(person.getIdPerson())
-                .name(person.getName())
-                .lastName(person.getLastName())
-                .email(person.getEmail())
-                .gender(person.getGender())
-                .phone(person.getPhone())
-                .dateOfBirth(person.getDateOfBirth()).build();
-
-        if (personDTO == null) {
-            return null;
-        }
-        if (dataDTO.getName() != null) {
-            personDTO.setName(dataDTO.getName());
-        }
-        if (dataDTO.getGender() != null) {
-            personDTO.setGender(dataDTO.getGender());
-        }
-        if (dataDTO.getLastName() != null) {
-            personDTO.setLastName(dataDTO.getLastName());
-        }
-        if (dataDTO.getEmail() != null) {
-            personDTO.setEmail(dataDTO.getEmail());
-        }
-        if (dataDTO.getPhone() != null) {
-            personDTO.setPhone(dataDTO.getPhone());
-        }
-        if (dataDTO.getDateOfBirth() != null) {
-            personDTO.setDateOfBirth(dataDTO.getDateOfBirth());
-        }
-
-        person = personService.save(personDTO);
-        return PersonDTO.builder().Id(person.getIdPerson())
-                .name(person.getName())
-                .lastName(person.getLastName())
-                .email(person.getEmail())
-                .phone(person.getPhone())
-                .gender(person.getGender())
-                .dateOfBirth(person.getDateOfBirth()).build();
-
-    }
-
-    /**
-     * Delete a Person entity by its id.
-     * It uses Spring's @DeleteMapping annotation to map this method to the DELETE "/person/{id}" request.
-     * It returns a ResponseEntity object with HTTP status.
-     *
-     * @param id The id of the Person entity to be deleted.
-     * @return ResponseEntity object with HTTP status.
-     */
-    @DeleteMapping("/person/{id}")
-    public ResponseEntity<?> deletePerson(@PathVariable Integer id) {
+    public ResponseEntity<?> updatePerson(@Valid @RequestBody PersonDTO dataDTO, BindingResult bindingResult) {
         try {
-            personService.delete(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            if (bindingResult.hasErrors()) {
+                return ResponseEntity.badRequest().body("Invalid data provided");
+            }
+            Person person = personService.findById(dataDTO.getIdPerson());
+            PersonDTO personDTO = PersonDTO.builder().IdPerson(person.getIdPerson())
+                    .name(person.getName())
+                    .lastName(person.getLastName())
+                    .gender(person.getGender())
+                    .phone(person.getPhone())
+                    .dateOfBirth(person.getDateOfBirth()).build();
+
+            if (personDTO == null) {
+                return null;
+            }
+            if (dataDTO.getName() != null) {
+                personDTO.setName(dataDTO.getName());
+            }
+            if (dataDTO.getGender() != null) {
+                personDTO.setGender(dataDTO.getGender());
+            }
+            if (dataDTO.getLastName() != null) {
+                personDTO.setLastName(dataDTO.getLastName());
+            }
+
+            if (dataDTO.getPhone() != null) {
+                personDTO.setPhone(dataDTO.getPhone());
+            }
+            if (dataDTO.getDateOfBirth() != null) {
+                personDTO.setDateOfBirth(dataDTO.getDateOfBirth());
+            }
+
+            person = personService.save(personDTO);
+            return ResponseEntity.ok(PersonDTO.builder().IdPerson(person.getIdPerson())
+                    .name(person.getName())
+                    .lastName(person.getLastName())
+                    .phone(person.getPhone())
+                    .gender(person.getGender())
+                    .dateOfBirth(person.getDateOfBirth()).build());
+
         } catch (DataException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating person");
         }
+
+
     }
+
 
     /**
      * Find a Person entity by its id.
@@ -137,16 +107,25 @@ public class PersonController {
      * @return The found PersonDTO object, or null if not found.
      */
     @GetMapping("/person/{id}")
-    public PersonDTO getPersonById(@PathVariable Integer id) {
+    public ResponseEntity<?> getPersonById(@PathVariable Integer id) {
+        try {
 
-        Person person = personService.findById(id);
-        return PersonDTO.builder().Id(person.getIdPerson())
-                .name(person.getName())
-                .lastName(person.getLastName())
-                .email(person.getEmail())
-                .gender(person.getGender())
-                .phone(person.getPhone())
-                .dateOfBirth(person.getDateOfBirth()).build();
+
+            Person person = personService.findById(id);
+            if (person == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(PersonDTO.builder().IdPerson(person.getIdPerson())
+                    .name(person.getName())
+                    .lastName(person.getLastName())
+                    .gender(person.getGender())
+                    .phone(person.getPhone())
+                    .dateOfBirth(person.getDateOfBirth()).build());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error finding person");
+
+        }
     }
 
     /**
@@ -157,23 +136,31 @@ public class PersonController {
      * @return A list of all PersonDTO objects.
      */
     @GetMapping("/persons")
-    public List<PersonDTO> getAllPersons() {
-        Iterable<Person> persons = personService.findAll();
-        List<PersonDTO> personDTOList = new ArrayList<>();
+    public ResponseEntity<List<PersonDTO>> getAllPersons() {
 
-        for (Person person : persons) {
-            PersonDTO personDTO = PersonDTO.builder()
-                    .Id(person.getIdPerson())
-                    .name(person.getName())
-                    .lastName(person.getLastName())
-                    .email(person.getEmail())
-                    .phone(person.getPhone())
-                    .gender(person.getGender())
-                    .dateOfBirth(person.getDateOfBirth())
-                    .build();
-            personDTOList.add(personDTO);
+        try {
+            Iterable<Person> persons = personService.findAll();
+            List<PersonDTO> personDTOList = new ArrayList<>();
+
+
+            for (Person person : persons) {
+                PersonDTO personDTO = PersonDTO.builder()
+                        .IdPerson(person.getIdPerson())
+                        .name(person.getName())
+                        .lastName(person.getLastName())
+                        .phone(person.getPhone())
+                        .gender(person.getGender())
+                        .dateOfBirth(person.getDateOfBirth())
+                        .build();
+                personDTOList.add(personDTO);
+            }
+            if(personDTOList.isEmpty()){
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(personDTOList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
 
-        return personDTOList;
     }
 }

@@ -40,11 +40,10 @@ public class PersonImpl implements IPerson {
     @Override
     @Transactional
     public Person save(PersonDTO personDTO) {
-        Person person = Person.builder().idPerson(personDTO.getId())
+        Person person = Person.builder().idPerson(personDTO.getIdPerson())
                 .name(personDTO.getName())
                 .lastName(personDTO.getLastName())
                 .phone(personDTO.getPhone())
-                .email(personDTO.getEmail())
                 .gender(personDTO.getGender())
                 .dateOfBirth(personDTO.getDateOfBirth()).build();
         return personDao.save(person);

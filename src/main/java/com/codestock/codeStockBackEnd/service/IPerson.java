@@ -30,6 +30,7 @@ public interface IPerson {
      *
      * @param id The id of the Person entity to be deleted.
      */
+    @Transactional
     void delete(Integer id);
 
     /**
@@ -39,6 +40,7 @@ public interface IPerson {
      * @param id The id of the Person entity to be found.
      * @return The found Person entity, or null if not found.
      */
+    @Transactional (readOnly = true)
     Person findById(Integer id);
 
     /**
@@ -47,5 +49,6 @@ public interface IPerson {
      *
      * @return An Iterable of all Person entities.
      */
+    @Transactional (readOnly = true)
     Iterable<Person> findAll();
 }

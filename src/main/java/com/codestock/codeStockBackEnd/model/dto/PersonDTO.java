@@ -24,7 +24,7 @@ public class PersonDTO implements Serializable {
     /**
      * The id of the person.
      */
-    private Integer Id;
+    private Integer IdPerson;
 
     /**
      * The name of the person.
@@ -41,10 +41,7 @@ public class PersonDTO implements Serializable {
      */
     private Date dateOfBirth;
 
-    /**
-     * The email of the person.
-     */
-    private String email;
+
 
     /**
      * The phone number of the person.
@@ -55,5 +52,7 @@ public class PersonDTO implements Serializable {
      *  The gender of the person.
      */
     private String gender;
+
+
 
 }
