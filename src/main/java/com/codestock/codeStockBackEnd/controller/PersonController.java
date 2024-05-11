@@ -63,7 +63,7 @@ public class PersonController {
      * It uses Spring's @PutMapping annotation to map this method to the PUT "/person" request.
      * It returns a PersonDTO object after updating the person.
      *
-     * @param personDTO The PersonDTO object to be updated.
+     * @param dataDTO The PersonDTO object to be updated.
      * @return The updated PersonDTO object.
      */
     @PutMapping("/person")
