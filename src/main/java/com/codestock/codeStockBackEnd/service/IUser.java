@@ -7,6 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * This interface represents the User service in the application.
  * It provides methods to perform operations on User entities.
+ * It is designed to be implemented by a class that interacts with the database.
+ * The methods are annotated with @Transactional to manage the transactions.
+ *
+ * @author Yesid-Robayo
+ * @version 1.0
+ * @see com.codestock.codeStockBackEnd.model.dto.UserDTO
+ * @see com.codestock.codeStockBackEnd.model.entity.User
+ * @see org.springframework.transaction.annotation.Transactional
  */
 public interface IUser {
 
@@ -23,18 +31,31 @@ public interface IUser {
 
     /**
      * This method is used to delete a User entity by its ID.
+     * It is transactional, meaning that if something goes wrong during the transaction,
+     * all changes will be rolled back.
      *
      * @param id The ID of the User entity to be deleted.
      */
-
-    void deleteByIdPerson(Integer id);
+    @Transactional
+    void delete(Integer id);
 
     /**
-     * This method is used to find a User entity by its ID.
+     * This method is used to find a User entity by its email.
+     * It is read-only, meaning that it does not modify the database.
      *
-     * @param idPerson The ID of the User entity to be found.
+     * @param email The email of the User entity to be found.
      * @return The found User entity, or null if not found.
      */
-    User findByEmail(Integer idPerson);
+    @Transactional(readOnly = true)
+    User findByEmail(String email);
 
+    /**
+     * This method is used to find a User entity by its person ID.
+     * It is read-only, meaning that it does not modify the database.
+     *
+     * @param id The person ID of the User entity to be found.
+     * @return The found User entity, or null if not found.
+     */
+    @Transactional(readOnly = true)
+    User findByIdPerson(Integer id);
 }

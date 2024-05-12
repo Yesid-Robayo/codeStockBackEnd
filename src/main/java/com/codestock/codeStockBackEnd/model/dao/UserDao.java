@@ -11,10 +11,19 @@ import org.springframework.data.repository.CrudRepository;
 public interface UserDao extends CrudRepository<User, Integer> {
 
     /**
+     * This method is used to find a User entity by its ID.
+     *
+     * @param id The ID of the User entity to be found.
+     * @return The found User entity, or null if not found.
+     */
+    User findByIdPerson(Integer id);
+
+    /**
      * This method is used to find a User entity by its email.
      *
      * @param email The email of the User entity to be found.
      * @return The found User entity, or null if not found.
      */
+
     User findByEmail(String email);
 }

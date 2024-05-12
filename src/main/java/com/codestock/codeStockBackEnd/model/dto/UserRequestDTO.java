@@ -3,9 +3,10 @@ package com.codestock.codeStockBackEnd.model.dto;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
- * This class represents a Data Transfer Object (DTO) for the User entity.
+ * This class represents a Data Transfer Object (DTO) for the UserRequest entity.
  * It is used to transfer data between processes or components, in this case, between the application and the client.
  * It uses Lombok annotations for boilerplate code reduction.
  */
@@ -14,12 +15,33 @@ import java.io.Serializable;
 @NoArgsConstructor   // Lombok annotation to generate a no-argument constructor
 @ToString            // Lombok annotation to generate a toString method
 @Builder            // Lombok annotation to provide a builder pattern for object creation
-public class UserDTO implements Serializable {
+public class UserRequestDTO implements Serializable {
 
     /**
-     * The id of the User.
+     * The name of the Person.
      */
-    private Integer idUser;
+    private String name;
+
+    /**
+     * The last name of the Person.
+     */
+    private String lastName;
+
+    /**
+     * The date of birth of the Person.
+     */
+    private Date dateOfBirth;
+
+    /**
+     * The phone number of the Person.
+     */
+    private String phone;
+
+    /**
+     * The gender of the Person.
+     */
+    private String gender;
+
     /**
      * The email of the User.
      */
@@ -29,9 +51,4 @@ public class UserDTO implements Serializable {
      * The password of the User.
      */
     private String password;
-
-    /**
-     * The id of the Person.
-     */
-    private Integer idPerson;
 }

@@ -34,11 +34,6 @@ public class Password implements Serializable {
     @Column(name = "hash")
     String hash;
 
-    /**
-     * The salt of the Password.
-     */
-    @Column(name = "salt")
-    String salt;
 
     /**
      * The ID of the User associated with this Password.

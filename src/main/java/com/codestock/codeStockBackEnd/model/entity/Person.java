@@ -39,8 +39,6 @@ public class Person implements Serializable {
     @Column(name = "gender") // Maps this field to the "gender" column in the database
     String gender;
 
-    @Column(name = "email") // Maps this field to the "email" column in the database
-    String email;
 
     @Column(name = "phone") // Maps this field to the "phone" column in the database
     String phone;

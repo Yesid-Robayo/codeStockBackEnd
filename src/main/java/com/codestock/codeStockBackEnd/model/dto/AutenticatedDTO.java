@@ -5,7 +5,7 @@ import lombok.*;
 import java.io.Serializable;
 
 /**
- * This class represents a Data Transfer Object (DTO) for the User entity.
+ * This class represents a Data Transfer Object (DTO) for the Authenticated entity.
  * It is used to transfer data between processes or components, in this case, between the application and the client.
  * It uses Lombok annotations for boilerplate code reduction.
  */
@@ -14,24 +14,15 @@ import java.io.Serializable;
 @NoArgsConstructor   // Lombok annotation to generate a no-argument constructor
 @ToString            // Lombok annotation to generate a toString method
 @Builder            // Lombok annotation to provide a builder pattern for object creation
-public class UserDTO implements Serializable {
+public class AutenticatedDTO  implements Serializable {
 
     /**
-     * The id of the User.
-     */
-    private Integer idUser;
-    /**
-     * The email of the User.
+     * The email of the authenticated user.
      */
     private String email;
 
     /**
-     * The password of the User.
+     * The password of the authenticated user.
      */
     private String password;
-
-    /**
-     * The id of the Person.
-     */
-    private Integer idPerson;
 }
