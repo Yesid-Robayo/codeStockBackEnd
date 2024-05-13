@@ -56,8 +56,8 @@ public class PasswordImpl implements IPassword {
      */
     @Override
     @Transactional
-    public void delete(Integer id) {
-        passwordDao.deleteById(id);
+    public void deleteByIdUser(Integer id) {
+        passwordDao.deleteByIdUser(id);
     }
 
     /**

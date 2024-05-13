@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 /**
  * This class represents the User Controller.
  * It handles HTTP requests and responses for operations related to users.
@@ -37,12 +40,12 @@ public class UserController {
      * Constructor for the UserController.
      * It uses Spring's @Autowired annotation for dependency injection.
      *
-     * @param userService The service to handle user operations.
-     * @param personService The service to handle person operations.
-     * @param passwordService The service to handle password operations.
+     * @param userService         The service to handle user operations.
+     * @param personService       The service to handle person operations.
+     * @param passwordService     The service to handle password operations.
      * @param passwordHashService The service to handle password hashing operations.
-     * @param rolUserService The service to handle role user operations.
-     * @param clientService The service to handle client operations.
+     * @param rolUserService      The service to handle role user operations.
+     * @param clientService       The service to handle client operations.
      */
     @Autowired
     public UserController(IUser userService, IPerson personService, IPassword passwordService, IPasswordHash passwordHashService, IRolUser rolUserService, IClient clientService) {
@@ -110,7 +113,7 @@ public class UserController {
             clientService.save(Client.builder().idPerson(savedPerson.getIdPerson()).build());
 
 
-            return ResponseEntity.ok("User Created Successfully");
+            return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "User Created Successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating user");
 
@@ -139,7 +142,7 @@ public class UserController {
             }
             String passwordHash = passwordHashService.encodePassword(changePassDTO.getNewPass());
             passwordService.save(Password.builder().idUser(findUser.getIdUser()).hash(passwordHash).build());
-            return ResponseEntity.ok("Password changed successfully");
+            return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Password changed successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error changing password");
         }
@@ -160,13 +163,14 @@ public class UserController {
             if (findUser == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
+
+            passwordService.deleteByIdUser(findUser.getIdUser());
             clientService.deleteByIdPerson(idPerson);
             rolUserService.deleteByIdUser(findUser.getIdUser());
-            passwordService.delete(findUser.getIdUser());
             userService.delete(findUser.getIdUser());
             personService.delete(idPerson);
 
-            return ResponseEntity.ok("User deleted");
+            return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "User deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting user");
         }

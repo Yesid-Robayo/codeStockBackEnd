@@ -31,7 +31,7 @@ public interface IPassword {
      * @param id The id of the password to be deleted.
      */
     @Transactional
-    void delete(Integer id);
+    void deleteByIdUser(Integer id);
 
     /**
      * Finds the password with the given user id.

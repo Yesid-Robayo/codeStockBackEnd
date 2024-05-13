@@ -10,6 +10,13 @@ import org.springframework.data.repository.CrudRepository;
 public interface PasswordDao extends CrudRepository<Password, Integer> {
 
     /**
+     * This method is used to delete a Password by the user's ID.
+     *
+     * @param id The ID of the user.
+     */
+    void deleteByIdUser(Integer id);
+
+    /**
      * This method is used to find a Password by the user's ID.
      *
      * @param id The ID of the user.

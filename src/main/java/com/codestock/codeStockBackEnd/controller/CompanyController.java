@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents the Company Controller.
@@ -127,7 +128,7 @@ public class CompanyController {
         try {
             productService.deleteByIdCompany(id);
             companyService.deleteByIdCompany(id);
-            return ResponseEntity.ok("Company deleted successfully");
+            return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Company deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting company");
         }

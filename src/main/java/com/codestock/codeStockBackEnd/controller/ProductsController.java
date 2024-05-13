@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -42,10 +43,10 @@ public class ProductsController {
      * Constructor for the ProductsController.
      * It uses dependency injection to get the required services.
      *
-     * @param productService The service to handle product operations.
-     * @param priceService The service to handle price operations.
+     * @param productService         The service to handle product operations.
+     * @param priceService           The service to handle price operations.
      * @param productCategoryService The service to handle product category operations.
-     * @param categoryService The service to handle category operations.
+     * @param categoryService        The service to handle category operations.
      */
     @Autowired
     public ProductsController(IProduct productService, IPrice priceService, IProductCategory productCategoryService, ICategory categoryService) {
@@ -251,7 +252,7 @@ public class ProductsController {
             priceService.deleteByIdProduct(id);
 
             productService.delete(id);
-            return ResponseEntity.ok("Product deleted");
+            return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Product deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting product");
         }

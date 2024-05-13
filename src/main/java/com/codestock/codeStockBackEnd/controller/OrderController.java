@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 /**
  * This class represents the Order Controller.
  * It handles HTTP requests and responses for operations related to orders.
@@ -33,12 +35,12 @@ public class OrderController {
      * Constructor for the OrderController.
      * It uses dependency injection to get the required services.
      *
-     * @param productOrderService The service to handle product order operations.
-     * @param orderService The service to handle order operations.
-     * @param productService The service to handle product operations.
-     * @param priceService The service to handle price operations.
+     * @param productOrderService    The service to handle product order operations.
+     * @param orderService           The service to handle order operations.
+     * @param productService         The service to handle product operations.
+     * @param priceService           The service to handle price operations.
      * @param productCategoryService The service to handle product category operations.
-     * @param categoryService The service to handle category operations.
+     * @param categoryService        The service to handle category operations.
      */
     public OrderController(IProductOrder productOrderService, IOrder orderService, IProduct productService, IPrice priceService, IProductCategory productCategoryService, ICategory categoryService) {
         this.productOrderService = productOrderService;
@@ -72,7 +74,10 @@ public class OrderController {
 
             }
 
-            return ResponseEntity.ok("Order saved successfully");
+            return ResponseEntity.ok(Map.of(
+                    "statusCode", HttpStatus.OK.value(),
+                    "message", "Order saved successfully"
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error saving order");
         }
@@ -90,7 +95,10 @@ public class OrderController {
         try {
             productOrderService.deleteByIdOrder(id);
             orderService.deleteById(id);
-            return ResponseEntity.ok("Order deleted successfully");
+            return ResponseEntity.ok(Map.of(
+                    "statusCode", HttpStatus.OK.value(),
+                    "message", "Order deleted successfully"
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error deleting order");
         }
