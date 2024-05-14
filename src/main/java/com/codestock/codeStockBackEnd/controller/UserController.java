@@ -35,6 +35,8 @@ public class UserController {
     private final IRolUser rolUserService;
     // The IClient service to handle client operations.
     private final IClient clientService;
+    //  The IRol service to handle rol operations.
+    private final IRol rolService;
 
     /**
      * Constructor for the UserController.
@@ -48,14 +50,14 @@ public class UserController {
      * @param clientService       The service to handle client operations.
      */
     @Autowired
-    public UserController(IUser userService, IPerson personService, IPassword passwordService, IPasswordHash passwordHashService, IRolUser rolUserService, IClient clientService) {
+    public UserController(IUser userService, IPerson personService, IPassword passwordService, IPasswordHash passwordHashService, IRolUser rolUserService, IClient clientService, IRol rolService) {
         this.userService = userService;
         this.personService = personService;
         this.passwordService = passwordService;
         this.passwordHashService = passwordHashService;
         this.rolUserService = rolUserService;
         this.clientService = clientService;
-
+        this.rolService = rolService;
 
     }
 
@@ -81,8 +83,10 @@ public class UserController {
             if (passwordHashService.verifyPassword(autenticatedDTO.getPassword(), findPassword.getHash())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
             }
+            RolUser rolUser = rolUserService.findByIdUser(findUser.getIdUser());
+            Rol rol = rolService.findById(rolUser.getIdRole());
             Person person = personService.findById(findUser.getIdPerson());
-            return ResponseEntity.ok(PersonDTO.builder().IdPerson(person.getIdPerson()).name(person.getName()).lastName(person.getLastName()).dateOfBirth(person.getDateOfBirth()).phone(person.getPhone()).gender(person.getGender()).build());
+            return ResponseEntity.ok(UserResponseDTO.builder().email(findUser.getEmail()).idRole(rol.getIdRole()).name(person.getName()).lastName(person.getLastName()).dateOfBirth(person.getDateOfBirth()).gender(person.getGender()).phone(person.getPhone()).IdPerson(person.getIdPerson()).build());
         } catch (
                 Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error validating user");

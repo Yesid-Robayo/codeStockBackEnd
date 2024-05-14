@@ -51,6 +51,17 @@ public class CategoryImpl implements ICategory {
                 .name(categoryDTO.getName()).build());
     }
 
+    /**
+     * Finds all categories.
+     *
+     * @return The list of all categories.
+     */
+
+    @Override
+    public Iterable<Category> findAllCategory() {
+        return categoryDao.findAll();
+    }
+
 
     /**
      * Finds the category with the given id.

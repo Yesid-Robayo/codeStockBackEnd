@@ -17,13 +17,7 @@ public interface RolUserDao extends CrudRepository<RolUser, Integer> {
      */
     RolUser findByIdUser(Integer idUser);
 
-    /**
-     * This method is used to find a RolUser by the role's ID.
-     *
-     * @param idRole The ID of the role.
-     * @return The RolUser entity if found, null otherwise.
-     */
-    RolUser findByIdRole(Integer idRole);
+
 
     /**
      * This method is used to delete a RolUser by the user's ID.

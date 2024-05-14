@@ -26,6 +26,9 @@ public interface ICategory {
     @Transactional
     Category save(CategoryDTO categoryDTO);
 
+    @Transactional
+    Iterable<Category> findAllCategory();
+
     /**
      * Finds the category with the given id.
      *

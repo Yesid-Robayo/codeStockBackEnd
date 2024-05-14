@@ -37,6 +37,18 @@ public class RolUserImpl implements IRolUser {
     }
 
     /**
+     * Finds a role user by the user's ID.
+     *
+     * @param id The ID of the user.
+     * @return The role user if found, null otherwise.
+     */
+
+    @Override
+    public RolUser findByIdUser(Integer id) {
+        return rolUserDao.findByIdUser(id);
+    }
+
+    /**
      * Saves the given role user.
      *
      * @param rolUser The role user to be saved.

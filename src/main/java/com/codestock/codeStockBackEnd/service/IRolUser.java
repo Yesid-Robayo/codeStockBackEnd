@@ -25,6 +25,9 @@ public interface IRolUser {
     @Transactional
     RolUser save(RolUser rolUser);
 
+
+    @Transactional
+    RolUser findByIdUser(Integer id);
     /**
      * Deletes the role user with the given user id.
      *
