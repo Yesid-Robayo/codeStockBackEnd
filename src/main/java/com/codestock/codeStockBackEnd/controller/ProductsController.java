@@ -218,7 +218,10 @@ public class ProductsController {
             );
             List<PriceDTO> prices = productRequestDTO.getPrices();
             for (PriceDTO priceDTO : prices) {
-                priceService.save(priceDTO);
+                priceService.save(PriceDTO.builder().idCurrency(priceDTO.getIdCurrency())
+                        .price(priceDTO.getPrice())
+                        .idProduct(product.getIdProduct())
+                        .build());
             }
             List<CategoryDTO> categories = productRequestDTO.getCategories();
             for (CategoryDTO categoryDTO : categories) {
@@ -268,6 +271,7 @@ public class ProductsController {
     public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO) {
         try {
             Product product = productService.save(productDTO);
+
             return ResponseEntity.ok(ProductDTO.builder().idProduct(product.getIdProduct())
                     .code(product.getCode())
                     .name(product.getName())
