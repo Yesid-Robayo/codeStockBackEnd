@@ -2,8 +2,11 @@ package com.codestock.codeStockBackEnd.controller;
 
 import com.codestock.codeStockBackEnd.model.dto.CompanyDTO;
 import com.codestock.codeStockBackEnd.model.entity.Company;
+import com.codestock.codeStockBackEnd.model.entity.Product;
 import com.codestock.codeStockBackEnd.service.ICompany;
+import com.codestock.codeStockBackEnd.service.IPrice;
 import com.codestock.codeStockBackEnd.service.IProduct;
+import com.codestock.codeStockBackEnd.service.IProductCategory;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +29,8 @@ public class CompanyController {
 
     private final ICompany companyService;
     private final IProduct productService;
-
+    private final IPrice priceService;
+    private final IProductCategory productCategoryService;
 
     /**
      * Constructor for the CompanyController.
@@ -36,9 +40,11 @@ public class CompanyController {
      * @param productService The service to handle product operations.
      */
     @Autowired
-    public CompanyController(ICompany companyService, IProduct productService) {
+    public CompanyController(ICompany companyService, IProduct productService, IPrice priceService, IProductCategory productCategoryService) {
         this.companyService = companyService;
         this.productService = productService;
+        this.priceService = priceService;
+        this.productCategoryService = productCategoryService;
     }
 
     /**
@@ -126,7 +132,13 @@ public class CompanyController {
     @DeleteMapping("/company/{id}")
     public ResponseEntity<?> deleteCompanyById(@PathVariable Integer id) {
         try {
+            Iterable<Product> products = productService.findAllByIdCompany(id);
+            for (Product product : products) {
+                priceService.deleteByIdProduct(product.getIdProduct());
+                productCategoryService.deleteByIdProduct(product.getIdProduct());
+            }
             productService.deleteByIdCompany(id);
+
             companyService.deleteByIdCompany(id);
             return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Company deleted successfully"));
         } catch (Exception e) {

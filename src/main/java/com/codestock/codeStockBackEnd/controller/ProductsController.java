@@ -1,20 +1,19 @@
 package com.codestock.codeStockBackEnd.controller;
 
+import com.codestock.codeStockBackEnd.methods.BuildPDFMethod;
+import com.codestock.codeStockBackEnd.methods.BuildPDFMethodUserOrder;
 import com.codestock.codeStockBackEnd.model.dto.*;
 import com.codestock.codeStockBackEnd.model.entity.Category;
 import com.codestock.codeStockBackEnd.model.entity.Price;
 import com.codestock.codeStockBackEnd.model.entity.Product;
 import com.codestock.codeStockBackEnd.model.entity.ProductCategory;
-import com.codestock.codeStockBackEnd.service.ICategory;
-import com.codestock.codeStockBackEnd.service.IPrice;
-import com.codestock.codeStockBackEnd.service.IProduct;
-import com.codestock.codeStockBackEnd.service.IProductCategory;
+import com.codestock.codeStockBackEnd.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +37,7 @@ public class ProductsController {
     private final IProductCategory productCategoryService;
     // Service to handle operations related to categories
     private final ICategory categoryService;
+    private final ICompany companyService;
 
     /**
      * Constructor for the ProductsController.
@@ -49,12 +49,14 @@ public class ProductsController {
      * @param categoryService        The service to handle category operations.
      */
     @Autowired
-    public ProductsController(IProduct productService, IPrice priceService, IProductCategory productCategoryService, ICategory categoryService) {
+    public ProductsController(IProduct productService, IPrice priceService, IProductCategory productCategoryService, ICategory categoryService, ICompany companyService) {
 
         this.categoryService = categoryService;
         this.productCategoryService = productCategoryService;
         this.productService = productService;
         this.priceService = priceService;
+        this.companyService = companyService;
+
     }
 
     /**
@@ -251,6 +253,7 @@ public class ProductsController {
     @DeleteMapping("/product/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
         try {
+
             productCategoryService.deleteByIdProduct(id);
             priceService.deleteByIdProduct(id);
 
@@ -264,14 +267,35 @@ public class ProductsController {
     /**
      * Handles the PUT request to update a product.
      *
-     * @param productDTO The product to update.
+     * @param productRequestDTO The product to update.
      * @return A ResponseEntity containing the updated product or an error message.
      */
     @PutMapping("/product")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO) {
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> updateProduct(@RequestBody ProductRequestDTO productRequestDTO) {
         try {
-            Product product = productService.save(productDTO);
-
+            Product product = productService.save(
+                    ProductDTO.builder().idProduct(productRequestDTO.getIdProduct())
+                            .code(productRequestDTO.getCode())
+                            .name(productRequestDTO.getName())
+                            .characteristics(productRequestDTO.getCharacteristics())
+                            .idCompany(productRequestDTO.getIdCompany())
+                            .build()
+            );
+            List<PriceDTO> prices = productRequestDTO.getPrices();
+            for (PriceDTO priceDTO : prices) {
+                priceService.save(PriceDTO.builder().idCurrency(priceDTO.getIdCurrency())
+                        .price(priceDTO.getPrice())
+                        .idProduct(product.getIdProduct())
+                        .build());
+            }
+            List<CategoryDTO> categories = productRequestDTO.getCategories();
+            productCategoryService.deleteByIdProduct(product.getIdProduct());
+            for (CategoryDTO categoryDTO : categories) {
+                productCategoryService.save(ProductCategory.builder().idCategory(categoryDTO.getIdCategory())
+                        .idProduct(product.getIdProduct())
+                        .build());
+            }
             return ResponseEntity.ok(ProductDTO.builder().idProduct(product.getIdProduct())
                     .code(product.getCode())
                     .name(product.getName())
@@ -280,43 +304,6 @@ public class ProductsController {
                     .build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating product");
-        }
-    }
-
-    /**
-     * Handles the PUT request to update a product price.
-     *
-     * @param priceDTO The price to update.
-     * @return A ResponseEntity containing the updated price or an error message.
-     */
-    @PutMapping("/productPrice")
-    public ResponseEntity<?> updateProductPrice(@RequestBody PriceDTO priceDTO) {
-        try {
-            Price price = priceService.save(priceDTO);
-            return ResponseEntity.ok(PriceDTO.builder().idCurrency(price.getIdCurrency())
-                    .price(price.getPrice())
-                    .idProduct(price.getIdProduct())
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating product price");
-        }
-    }
-
-    /**
-     * Handles the PUT request to update a product category.
-     *
-     * @param productCategory The product category to update.
-     * @return A ResponseEntity containing the updated product category or an error message.
-     */
-    @PutMapping("/productCategory")
-    public ResponseEntity<?> updateProductCategory(@RequestBody ProductCategory productCategory) {
-        try {
-            ProductCategory productCategory1 = productCategoryService.save(productCategory);
-            return ResponseEntity.ok(ProductCategory.builder().idCategory(productCategory1.getIdCategory())
-                    .idProduct(productCategory1.getIdProduct())
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating product category");
         }
     }
 
@@ -336,5 +323,84 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Handles the POST request to send an inventory email with a PDF attachment.
+     *
+     * @param idCompany The ID of the company.
+     * @return A ResponseEntity containing a success message or an error message.
+     */
+    @GetMapping("/sendInventoryEmailPDF/{idCompany}")
+    public ResponseEntity<?> sendInventoryEmailPDF(@PathVariable Integer idCompany) {
+        try {
+            String otherApiUrl = "https://3wln6v114a.execute-api.us-east-2.amazonaws.com/sendEmailPDF";
+            BuildPDFMethod buildPDFMethod = new BuildPDFMethod(companyService, productService, priceService, productCategoryService, categoryService);
+            String base64Email = buildPDFMethod.generateDocumentPDF(idCompany);
 
+            if (base64Email == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating PDF");
+            }
+
+            Map<String, Object> emailBody = Map.of(
+                    "to", "yesidrobayo11@gmail.com",
+                    "subject", "Inventarios de la empresa",
+                    "body", "Estimado equipo,\n\nAdjunto encontrarán el inventario actualizado de la empresa. Este incluye una lista detallada de todos los productos y cualquier otra información relevante. \n\nGracias y saludos cordiales",
+                    "pdf_base64", base64Email
+            );
+
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(emailBody, headers);
+            ResponseEntity<String> responseEntity = new RestTemplate().exchange(otherApiUrl, HttpMethod.POST, requestEntity, String.class);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Email sent successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+        }
+
+    }
+
+    /**
+     * Handles the POST request to send an inventory email with a PDF attachment for a user order.
+     *
+     * @param productResponseDTO The list of products in the order.
+     * @return A ResponseEntity containing a success message or an error message.
+     */
+    @PostMapping("/sendInventoryEmailPDFUserOrder")
+    public ResponseEntity<?> sendInventoryEmailPDFUserOrder(@RequestBody List<ProductResponseDTO> productResponseDTO) {
+        try {
+            String otherApiUrl = "https://3wln6v114a.execute-api.us-east-2.amazonaws.com/sendEmailPDF";
+            BuildPDFMethodUserOrder buildPDFMethodUserOrder = new BuildPDFMethodUserOrder( productResponseDTO);
+            String base64Email = buildPDFMethodUserOrder.generateDocumentPDF();
+
+            if (base64Email == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error generating PDF");
+            }
+
+            Map<String, Object> emailBody = Map.of(
+                    "to", "yesidrobayo11@gmail.com",
+                    "subject", "Inventarios de tu order",
+                    "body", "Estimado usuario,\n\nAdjunto encontrarán el inventario actualizado de tu order. Este incluye una lista detallada de todos los productos y cualquier otra información relevante. \n\nGracias y saludos cordiales",
+                    "pdf_base64", base64Email
+            );
+
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(emailBody, headers);
+            ResponseEntity<String> responseEntity = new RestTemplate().exchange(otherApiUrl, HttpMethod.POST, requestEntity, String.class);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.ok(Map.of("statusCode", HttpStatus.OK.value(), "message", "Email sent successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending email");
+        }
+    }
 }

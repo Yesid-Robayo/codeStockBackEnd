@@ -10,10 +10,19 @@ import org.springframework.data.repository.CrudRepository;
 public interface PriceDao extends CrudRepository<Price, Integer> {
 
     /**
+     * This method is used to delete a Price by the product's ID.
+     *
+     * @param id The ID of the product.
+     */
+    void deleteByIdProduct(Integer id);
+
+    /**
      * This method is used to find all Prices by the product's ID.
      *
      * @param id The ID of the product.
      * @return An Iterable of Price entities if found, empty Iterable otherwise.
      */
+
+
     Iterable<Price> findByIdProduct(Integer id);
 }

@@ -52,7 +52,7 @@ public class ProductOrderImpl implements IProductOrder {
      */
     @Override
     public void deleteByIdOrder(int idOrder) {
-        productOrderDao.deleteById(idOrder);
+        productOrderDao.deleteByIdOrder(idOrder);
     }
 
     /**

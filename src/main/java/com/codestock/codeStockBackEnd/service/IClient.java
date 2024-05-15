@@ -26,6 +26,14 @@ public interface IClient {
     Client save(Client client);
 
     /**
+     * Finds the client with the given person id.
+     *
+     * @param id The id of the person to be found.
+     * @return The client with the given person id.
+     */
+    @Transactional
+    Client findByIdPerson(Integer id);
+    /**
      * Deletes the client with the given person id.
      *
      * @param id The id of the person to be deleted.

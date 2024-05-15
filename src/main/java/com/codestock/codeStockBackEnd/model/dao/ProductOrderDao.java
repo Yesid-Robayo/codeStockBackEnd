@@ -18,10 +18,10 @@ public interface ProductOrderDao extends CrudRepository<ProductOrder, Integer> {
     Iterable<ProductOrder> findByIdOrder(int idOrder);
 
     /**
-     * This method is used to find a ProductOrder by the product's ID.
+     * This method is used to delete a ProductOrder by the order's ID.
      *
-     * @param idProduct The ID of the product.
-     * @return The ProductOrder entity if found, null otherwise.
+     * @param idOrder The ID of the order.
      */
-    ProductOrder findByIdProduct(int idProduct);
+    void deleteByIdOrder(int idOrder);
+
 }

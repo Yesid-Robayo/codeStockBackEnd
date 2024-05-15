@@ -70,18 +70,21 @@ public class ProductOrder {
 @NoArgsConstructor
 @ToString
 @Builder
+
 class MyKeyOrderProduct {
 
     /**
      * The ID of the product.
      * It is a part of the composite key of the ProductOrder table.
      */
+
     private Integer idProduct;
 
     /**
      * The ID of the order.
      * It is a part of the composite key of the ProductOrder table.
      */
+
     private Integer idOrder;
 
     /**

@@ -28,6 +28,7 @@ public class OrderController {
     private final IOrder orderService;
     private final IProduct productService;
     private final IPrice priceService;
+    private final IClient clientService;
     private final IProductCategory productCategoryService;
     private final ICategory categoryService;
 
@@ -42,11 +43,12 @@ public class OrderController {
      * @param productCategoryService The service to handle product category operations.
      * @param categoryService        The service to handle category operations.
      */
-    public OrderController(IProductOrder productOrderService, IOrder orderService, IProduct productService, IPrice priceService, IProductCategory productCategoryService, ICategory categoryService) {
+    public OrderController(IProductOrder productOrderService, IOrder orderService, IProduct productService, IPrice priceService, IClient clientService, IProductCategory productCategoryService, ICategory categoryService) {
         this.productOrderService = productOrderService;
         this.orderService = orderService;
         this.productService = productService;
         this.priceService = priceService;
+        this.clientService = clientService;
         this.productCategoryService = productCategoryService;
         this.categoryService = categoryService;
 
@@ -62,8 +64,10 @@ public class OrderController {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<?> saveOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
         try {
-
-            Order orderSave = orderService.save(Order.builder().idClient(orderRequestDTO.getIdClient())
+            Client client = clientService.findByIdPerson(orderRequestDTO.getIdPerson());
+            Order orderSave = orderService.save(Order.builder()
+                    .idOrder(0)
+                    .idClient(client.getIdClient())
                     .date(orderRequestDTO.getDate())
                     .build());
             for (OrderProductRequestDTO productOrder : orderRequestDTO.getProducts()) {
@@ -100,6 +104,7 @@ public class OrderController {
                     "message", "Order deleted successfully"
             ));
         } catch (Exception e) {
+
             return ResponseEntity.status(500).body("Error deleting order");
         }
     }
@@ -130,9 +135,8 @@ public class OrderController {
     }
 
     /**
-     * Handles the GET request to get all orders.
-     *
-     * @return A ResponseEntity containing a list of orders or an error message.
+     * Handles the GET request to get all orders
+     * return A ResponseEntity containing a list of orders or an error message.
      */
     private void forProduct(Iterable<ProductOrder> productOrderList, List<ProductResponseDTO> productOrderResponseDTOList) {
         for (ProductOrder productOrder : productOrderList) {
