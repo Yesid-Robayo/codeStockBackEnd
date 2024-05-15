@@ -58,7 +58,7 @@ public class PriceImpl implements IPrice {
     @Override
     @Transactional
     public void deleteByIdProduct(Integer id) {
-        priceDao.deleteById(id);
+        priceDao.deleteByIdProduct(id);
     }
 
     /**

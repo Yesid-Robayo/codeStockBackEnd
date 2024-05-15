@@ -50,6 +50,18 @@ public class ClientImpl implements IClient {
     }
 
     /**
+     * Finds the client with the given id.
+     *
+     * @param id The id of the client to be found.
+     * @return The client with the given id.
+     */
+    @Override
+    @Transactional
+    public Client findByIdPerson(Integer id) {
+        return clientDao.findByIdPerson(id);
+    }
+
+    /**
      * Deletes the client with the given id.
      *
      * @param id The id of the client to be deleted.

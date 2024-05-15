@@ -27,7 +27,7 @@ public class OrderRequestDTO {
     /**
      * The ID of the client who is placing the order.
      */
-    private Integer idClient;
+    private Integer idPerson;
 
     /**
      * The list of products that the client wants to order.
