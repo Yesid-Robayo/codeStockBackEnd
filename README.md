@@ -2,6 +2,11 @@
 
 Este es el backend del proyecto CodeStock, desarrollado en Java con Spring Boot y documentado con Swagger. Proporciona una API RESTful para gestionar diversas entidades.
 
+## Tecnologías Utilizadas
+
+- **Java Spring Boot**: Framework de aplicación de Java que proporciona un entorno robusto y escalable para el desarrollo de aplicaciones web y servicios RESTful.
+- **MySQL**: Sistema de gestión de bases de datos relacional que proporciona una solución confiable y eficiente para almacenar y recuperar datos relacionales.
+- **AWS**: Se utiliza AWS para desplegar la aplicación y aprovechar servicios como EC2, RDS y Lambda.
 ## Requisitos
 
 - Java 8 o superior
